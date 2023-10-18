@@ -6,20 +6,24 @@ import requests
 import webbrowser
 import time
 
-# Tkinterウィンドウを作成
+# Tkinterウィンドウ
 window = tk.Tk()
 window.title("Amazon検索アプリ")
-window.geometry("800x600")  # ウィンドウサイズを500x500に設定
+window.geometry("800x600") 
 
 # ウェブスクレイピング関数
 def search_amazon():
     global keyword
     keyword = keyword_entry.get()
-    amazonTrackingPrice()
+    while(True):
+        amazonTrackingPrice()
+        time.sleep(60*60)
 
+# ブラウザオープン関数
 def open_amazon():
     webbrowser.open('https://www.amazon.co.jp/')
 
+# 価格追跡関数
 def amazonTrackingPrice():
     global result_labels, price_labels, intPrice
     amazonPage = requests.get(keyword)
@@ -31,14 +35,6 @@ def amazonTrackingPrice():
     first_price = price[0]
     convertedPrice = first_price.get_text()
     convertedPrice = convertedPrice.replace("￥", "").replace(",", "").replace(' ', "")
-    # convertedPrice = convertedPrice[:len(convertedPrice) // 2]
-    # intPrice = int(convertedPrice)
-    # result_labels = Label(window, text=title) 
-    # result_labels.pack()
-    # price_labels = Label(window, text=f"現在の価格：{intPrice}円") 
-    # price_labels.pack()
-    # choice_line()
-    # repeat()
 
     if convertedPrice:
         intPrice = int(convertedPrice)
@@ -61,6 +57,7 @@ def clear_text():
     OK_button.destroy()
     NO_button.destroy()
 
+# LINEへの通知関数
 def choice_line():
     global OK_button, NO_button, line_labels
     line_labels = Label(window, text="LINEに価格が希望額を下回ったら通知するようにしますか？") 
@@ -70,6 +67,7 @@ def choice_line():
     NO_button = Button(window, text="いいえ", command=clear_text)
     NO_button.place(x=80, y=390)
 
+# OKを押した場合の希望価格
 def choice_line_ok():
     global Asking_price
     Asking_price = Entry(window)
@@ -77,6 +75,7 @@ def choice_line_ok():
     setting_button = Button(window, text="この金額を希望する", command=completed)
     setting_button.place(x=230, y=440)
 
+# LINE通知予告完了
 def completed():
     Ask_price = Asking_price.get()
     line_result = Label(window, text="LINE通知を設定しました!") 
@@ -85,6 +84,7 @@ def completed():
     if(intPrice < int(f"{Ask_price}")):
         sendLineNotify()
 
+# LINE通知の設定
 def sendLineNotify():
     lineNotifyToken = "24wEN0pc0jSP9n0G0IYs3fCGucZCoTRcQwcB2Nm3M7a"
     lineNotifyApi = "https://notify-api.line.me/api/notify"
@@ -92,10 +92,12 @@ def sendLineNotify():
     data = {"message": f"今がお買い時です!{ keyword }"}
     requests.post(lineNotifyApi, headers=headers, data=data)
 
+# 起動中に追跡をする時間間隔の関数
 def repeat():
     amazonTrackingPrice()
     window.after(60000, repeat)  # 60000ミリ秒（＝60秒）後に再度実行
 
+# ============ メインビジュアル ====================================================
 frame_1 = tk.Frame(window, width=800, height=75, bd=4, relief=tk.GROOVE)
 frame_2 = tk.Frame(window, width=400, height=525, bd=4, relief=tk.GROOVE)
 frame_3 = tk.Frame(window, width=400, height=525, bd=4, relief=tk.GROOVE)
@@ -120,16 +122,10 @@ keyword_entry.place(x=20, y=140)
 search_button = Button(frame_2,  font=("Menlo",15), text="検索", command=search_amazon)
 search_button.place(x=310, y=145)
 
-# while(True):
-#     amazonTrackingPrice()
-#     time.sleep(60*60)
-    
 window.mainloop()
 
 
-
-
-
+# コピーサンプルAmazonURL : 商品名 → Pythonの教科書
 # https://www.amazon.co.jp/%E3%82%B7%E3%82%B4%E3%83%88%E3%81%8C%E3%81%AF%E3%81%8B%E3%81%A9%E3%82%8B-Python%E8%87%AA%E5%8B%95%E5%87%A6%E7%90%86%E3%81%AE%E6%95%99%E7%A7%91%E6%9B%B8-%E3%82%AF%E3%82%B8%E3%83%A9%E9%A3%9B%E8%A1%8C%E6%9C%BA/dp/4839973857/ref=sr_1_16?__mk_ja_JP=%E3%82%AB%E3%82%BF%E3%82%AB%E3%83%8A&crid=33WJ2GGAOMFHD&keywords=python&qid=1697484614&sprefix=python%2Caps%2C196&sr=8-16
 
 
